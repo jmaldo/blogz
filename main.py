@@ -20,6 +20,7 @@ class Blog(db.Model):
     def __init__(self, title, body):
         self.post_title = title
         self.post_body = body
+        self.owner = owner
 
 @app.route('/blog', methods = ['POST','GET'])
 def index():
