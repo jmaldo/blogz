@@ -110,7 +110,14 @@ def login():
         else:
             flash("User password incorrect, or user does not exist", 'error')
 
+    return render_template('login.html')
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'Post':
+        username = request.form['username']
+        password = request.from['password']
+        verify = request.form['verify']
 
 
 
