@@ -36,7 +36,7 @@ class User(db.Model):
 @app.before_request
 def require_login():
     allowed_routes = ['blogs_list', 'index', 'login' 'singlepost', 'userposts']
-    if request.endpoint not allowed in allowed_routes and 'username' not in session:
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
 @app.route('/', methods = ['Post', 'Get'])
@@ -96,7 +96,7 @@ def user_posts():
 
     return render_template('userpost.html', title="User Posts", post=posts)
 
-@app.route('/login' methods=['Get', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
 
     if request.method == 'Post':
@@ -106,7 +106,7 @@ def login():
         if usesr and check_pw_hash(password, user.pw_hash):
             session['username'] = username
             flash("Logged In")
-            return redirect(/'new-post')
+            return redirect('/new-post')
         else:
             flash("User password incorrect, or user does not exist", 'error')
 
@@ -116,10 +116,10 @@ def login():
 def signup():
     if request.method == 'Post':
         username = request.form['username']
-        password = request.from['password']
+        password = request.form['password']
         verify = request.form['verify']
 
-
+    # --------Blank Fields--------
 
     if len(username) == 0:
         flash("The User Name field was left blank.", 'error')
@@ -129,12 +129,12 @@ def signup():
         flash('The Password field was left bank.', 'error')
     else: 
         password = password
-    if len(verify) = 0:
+    if len(verify) == 0:
         flash('The verify password field was left blank', 'error')
     else:
         verify = verify
 
-
+    #---------Invalid User Name, Password, user name--------
 
     if len(username) !=0:
         if len(username) < 4 or len(username) > 50 or ' ' in username:
@@ -148,7 +148,43 @@ def signup():
                 flash("Password must be between 4 and 19 characters long and cannot conatin spaces.", 'error')
                 return render_template('/signup.html')
         else: 
-            password = password    
+            password = password
+
+    #--------Password and Verify Do Not Match-----------
+
+    if len(password) == len(verify):
+        for char, letter in zip(password, verify):
+            if char !=letter:
+                flash('Password do not match', error)
+                return render_template('signup.html')
+        else:
+               verify = verify
+               password = password
+    else:
+            flash('Password Do Not Match.', 'error')
+            return render_template('signup.html')
+
+    if username and password and verify:
+            existing_user = User.query.filter_by(username=username).first()
+            if not existing_user:
+                new_user = User(username, password)
+                db.session.add(new_user)
+                db.session.commit()
+                session['username'] = username
+                return redirect('/new-post')
+            else:
+
+                flash('Duplicate User.', 'error')
+    else:
+            return render_template('signup.html')
+
+    return render_template('signup.html')
+
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/blog')
+
 
 if __name__ == '__main__':
     app.run()   
