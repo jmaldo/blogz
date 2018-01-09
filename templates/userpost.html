@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for posts in posts %}
+    <h2>{{ post.post_title }}</h2>
+    <h4>Written by {{ post.owner.username }}</h4>
+    <p>{{ post.post_body }}</p>
+{% endfor %}
+
+{% endblock %}

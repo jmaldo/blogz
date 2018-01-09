@@ -22,6 +22,17 @@ class Blog(db.Model):
         self.post_body = body
         self.owner = owner
 
+class User(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True)
+    username = db.Column(db.string(150))
+    blogs = db.relationship('Blog', backref='owner')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.pw_hash = make_pwd_hash(password)
+
 @app.route('/blog', methods = ['POST','GET'])
 def index():
 
