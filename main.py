@@ -121,10 +121,34 @@ def signup():
 
 
 
+    if len(username) == 0:
+        flash("The User Name field was left blank.", 'error')
+    else:
+        username = username
+    if len(password) == 0:
+        flash('The Password field was left bank.', 'error')
+    else: 
+        password = password
+    if len(verify) = 0:
+        flash('The verify password field was left blank', 'error')
+    else:
+        verify = verify
 
 
 
+    if len(username) !=0:
+        if len(username) < 4 or len(username) > 50 or ' ' in username:
+            flash('User Name must be between 4 and 20 characters long and cannot contain spaces.', 'error')
+            return render_template('/signup.html')
+        else: 
+            username = username
 
+        if len(password) != 0:
+            if len(password) < 4 or len(password) > 150 or ' ' in password:
+                flash("Password must be between 4 and 19 characters long and cannot conatin spaces.", 'error')
+                return render_template('/signup.html')
+        else: 
+            password = password    
 
 if __name__ == '__main__':
-    app.run()
+    app.run()   
