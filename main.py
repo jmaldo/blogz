@@ -80,7 +80,7 @@ def blogs_list():
     users = User.query.all()
     return render_template('blog.html', posts=posts, users=users)
 
-@app.route('singlepost', methods=['GET'])
+@app.route('/single-post', methods=['GET'])
 def single_post():
 
     retrieved_id = request.args.get('id')
