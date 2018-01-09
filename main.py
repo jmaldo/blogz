@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, sessions
+from flask import Flask, request, redirect, render_template, sessions, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -15,6 +15,7 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_title = db.Column(db.String(120))
     post_body = db.Column(db.String(25000))
+    ower_id = db.Column(db.integer, db.ForeignKey('user.id'))
 
     def __init__(self, title, body):
         self.post_title = title
