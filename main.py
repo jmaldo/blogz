@@ -15,9 +15,9 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_title = db.Column(db.String(120))
     post_body = db.Column(db.String(25000))
-    ower_id = db.Column(db.integer, db.ForeignKey('user.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, owner):
         self.post_title = title
         self.post_body = body
         self.owner = owner
@@ -26,7 +26,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
-    username = db.Column(db.string(150))
+    username = db.Column(db.String(150))
     blogs = db.relationship('Blog', backref='owner')
 
     def __init__(self, username, password):
