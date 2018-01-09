@@ -1,0 +1,15 @@
+{% extends "base.htm" %}
+
+{% block content %}
+    <h1>Author of Blogs</h1>
+
+    <hr/>
+    {% if authors|length == 0 %}
+    <p>Nothing to show here</p>
+    {% else %}
+        {% for author in authors %}
+            <a href="/userposts?id={{ author.id }}"><h2>{{author.username}}</h2></a>
+            {% end for %}
+    {% endif %}
+
+{% endblock %}
