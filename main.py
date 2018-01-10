@@ -14,24 +14,25 @@ app.secret_key = 'thekeyofkeys'
 class Blog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    post_title = db.Column(db.String(120))
-    post_body = db.Column(db.String(25000))
+    title = db.Column(db.String(120))
+    body = db.Column(db.Text)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date = db.Column(db.DateTime)
 
-    def __init__(self, title, body, owner):
-        self.post_title = title
-        self.post_body = body
-        self.owner = owner
+    def __init__(self, title, body, owner_id, date=None):
+        self.title = title
+        self.body = body
+        self.owner_id = owner_id
         if date is None:
             date = datetime.utcnow()
+        self.date = date
 
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
     username = db.Column(db.String(150))
-    blogs = db.relationship('Blog', backref='owner')
+    blogs = db.relationship('Blog', backref='user')
 
     def __init__(self, username, password):
         self.username = username
@@ -39,82 +40,133 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['blogs_list', 'index', 'login' 'singlepost', 'userposts']
+    allowed_routes = ['login', 'blog', 'index' 'singnup']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
 @app.route('/')
 def index():
 
-    authors = User.query.all()
-    return render_template('index.html', authors=authors)
+    users = User.query.order_by(User.username).all()
+    return render_template('index.html', title="Home", users = users)
 
-@app.route('/newpost', methods=['POST', 'GET'])
-def new_post():
-
-    post_body = ''
-    post_title = ''
-    title_error = ''
-    body_error = ''
-
-    owner = User.query.filter_by(username=session['username']).first()
-
-    if request.method == 'POST':
-        post_title = request.form['post_title']
-        post_body = request.form['post_body']
-
-        if post_title == '':
-            title_error = 'Please enter a Post Title.'
-        elif post_body == '':
-            body_error = 'Please enter some content.'
-        else:
-            new = Blog(post_title, post_body)
-            db.session.add(new)
-            db.session.commit()
-
-            return redirect('/singlepost?id={0}'.format(new.id))
-
-    return render_template('newpost.html', title="New Post", title_error=title_error,
-                body_error=body_error, post_title=post_title, post_body=post_body)
-
-@app.route('/blog', methods=['Post', 'GET'])
-def blogs_list():
-
-    posts = Blog.query.all()
-    users = User.query.all()
-    return render_template('blog.html', posts=posts, users=users)
-
-@app.route('/single-post', methods=['GET'])
-def single_post():
-
-    retrieved_id = request.args.get('id')
-    post = Blog.query.get(retrieved_id)
-
-    return render_template('singlepost.html', title="Single Post", post=post)
-
-@app.route('/user-posts', methods=['Get'])
-def user_posts():
-
-    user_id = request.args.get('id')
-    posts = db.session.query(Blog).filter_by(owner_id=user_id).all()
-
-    return render_template('userpost.html', title="User Posts", post=posts)
-
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/logins', methods=['POST', 'GET'])
 def login():
-
-    if request.method == 'Post':
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = Usery.query.filter_by(username=usnername).first()
-        if user and check_pw_hash(password, user.pw_hash):
-            session['username'] = username
-            flash("Logged In")
-            return redirect('/new-post')
-        else:
-            flash("User password incorrect, or user does not exist", 'error')
+        user = User.query.filter_by(username=username).first()
 
-    return render_template('login.html')
+        if user and user.password == password:
+            session['username'] = username
+            flash("Logged in")
+            return redirect('/newpost')
+        elif user and user.password != password:
+            flash('Your password is incorrect', 'error')
+            return render_template('login.html', username=username)
+
+    return render_template('login.html', title='login',)
+
+
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
+        existing_user = User.query.filter_by(username=username).first()
+        is_error = False
+        #username check
+        if not username:
+            flash('You need to enter a user name', 'error')
+            is_error = True
+        
+        elif existing_user:
+            flash('Username already exists', 'error')
+            is_error = True
+
+        elif len(username) < 3 or len(username) > 20 or ('' in username):
+            flash('Your user= name must be between 3 and 20 caracters in length and conatin no spaces', 'error')
+            is_error = True
+
+        if not password:
+            flash('You need to enter a password', 'error')
+            is_error =True
+
+        if not verify:
+            flash('You need to verify your password', 'error')
+            is_error = True
+
+        elif password != verify:
+            flash('Verification failed, your passwords did not match', 'error')
+            is_error = True
+        
+        if is_error == True"
+            return render_template('signup.html', username=username)
+
+        else:
+            new_user = User(username, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['username'] = username
+            return redirect('/newpost')
+        return render_template('signup.html', title="signup")
+
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/blog')
+
+@app.route('/blog', methods=['POST', 'GET'])
+def blog():
+
+    user_username = request.args.get('user')
+    blog_id = request.args.get('id')
+
+    if blog_id:
+        blog = Blog.query.get(blog_id)
+        return render_template('blog.html', title="ABlog", blog=blog)
+    elif user_username:
+        user = User.query.filter_by(username=user_username).first()
+        user_blogs = Blog.query.filter_by(owner_id=user.id).all()
+        return render_template('singleuser.html', title="Userblogs", blogs=user_blogs)
+
+    else:
+        post_blogs = Blog.query.order_by(Blog.date.desc()).all()
+        return render_template('singleuser.html', title="Blogz", blogs=posted_blogs)
+
+@app.route('/newpost', methods=['GET', 'POST'])
+def newpost():
+    owner = User.query.filter-by(username-session['username']).first()
+
+    if request.method == 'POST':
+        new_title = request.form['title']
+        new_body = request.form['body']
+        new_blog = Blog(new_title,  new_body, owner_id)
+
+        is_error = False
+
+        if not new_title:
+            flash('You need to enter a title', 'erro')
+            is_error = True
+        elif not new_body:
+            flash('You need to enter something in your post', 'error')
+            is_error = True
+
+        if is_error == True
+            return redirect('/newpost')
+
+        if is_error == True
+            return redirect('/newpost')
+        else:
+            db.session.add(new_blog)
+            db.session.commit()
+            return redirect(url_for('blog',id=str(new_blog.id)))
+
+    return render_template('newpost.html', title = "newpost")
+
+if __name__=='__main__':
+    app.run()
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
