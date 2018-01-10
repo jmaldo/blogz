@@ -1,5 +1,6 @@
-from flask import Flask, request, redirect, render_template, sessions, flash
+from flask import Flask, request, redirect, render_template, session, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -16,11 +17,14 @@ class Blog(db.Model):
     post_title = db.Column(db.String(120))
     post_body = db.Column(db.String(25000))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date = db.Column(db.DateTime)
 
     def __init__(self, title, body, owner):
         self.post_title = title
         self.post_body = body
         self.owner = owner
+        if date is None:
+            date = datetime.utcnow()
 
 class User(db.Model):
 
@@ -39,7 +43,7 @@ def require_login():
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
-@app.route('/', methods = ['Post', 'Get'])
+@app.route('/')
 def index():
 
     authors = User.query.all()
@@ -103,7 +107,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = Usery.query.filter_by(username=usnername).first()
-        if usesr and check_pw_hash(password, user.pw_hash):
+        if user and check_pw_hash(password, user.pw_hash):
             session['username'] = username
             flash("Logged In")
             return redirect('/new-post')

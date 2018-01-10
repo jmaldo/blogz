@@ -1,17 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Blog Table</h1>
-
-    <hr/>
-    {% if posts|length == 0 %}
-    <p>No posts yet</p>
-    {% else %}
-        {% for post in posts %}
-        <h2><a href="/singlepost?id={{ post.id }}">{{ post.post_title }}</a></h2>
-        <h4>Written by <a href="/userposts?id={{ post.owner_id }}">{{post.owner.username}}</a></h4>
-        <p>{{post.post_body}}</p>
-        {% endfor %}
-    {% endif %}
+    <h2>{{ blog.title }}</h2></a>
+    <p>{{ blog.body }}</p>
+    <small><i>Written by</i><a href='/blog?user={{ blog.user.username }}'>{{ blog.user.username }}</a>{{ blog.date }}</small>
 
 {% endblock %}
