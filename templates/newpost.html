@@ -3,16 +3,15 @@
 {% block content %}
     
 <h1>Blog Entry</h1>
-    
-<h2>Enter a new post:</h2>
-    <form action="/newpost" method='POST'>
-      <label>New Post Title:</label><br>
-      <input type="text" name="title" value="{{ new_title }}" />
-      <br><br><br>
-      <label>Your new post:</label><br>
-      <textarea name="body" rows="10" cols="30" >{{ new_body }}</textarea>
-      <br><br><br>
-      <input type="submit" value='Add Entry' />
-    </form>
 
+<form action="/newpost" method="POST">
+  <label>Title for New Post</label></br>
+  <input type="text" name="title" value="{{ new_title }}"/>
+  <br><br><br>
+  <label>New Post:</label><br>
+  <textarea name="body" rows="10" cols="30">{{ new_body }}</textarea>
+  <br><br><br>
+  <input type="submit" value='Add Entry'/>
+</form>
+    
 {% endblock %}

@@ -50,7 +50,7 @@ def index():
     users = User.query.order_by(User.username).all()
     return render_template('index.html', title="Home", users = users)
 
-@app.route('/logins', methods=['POST', 'GET'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
@@ -101,7 +101,7 @@ def signup():
             flash('Verification failed, your passwords did not match', 'error')
             is_error = True
         
-        if is_error == True"
+        if is_error == True:
             return render_template('signup.html', username=username)
 
         else:
@@ -133,7 +133,7 @@ def blog():
 
     else:
         post_blogs = Blog.query.order_by(Blog.date.desc()).all()
-        return render_template('singleuser.html', title="Blogz", blogs=posted_blogs)
+        return render_template('singleuser.html', title="Blogz", blogs=post_blogs)
 
 @app.route('/newpost', methods=['GET', 'POST'])
 def newpost():
@@ -153,10 +153,10 @@ def newpost():
             flash('You need to enter something in your post', 'error')
             is_error = True
 
-        if is_error == True
+        if is_error == True:
             return redirect('/newpost')
 
-        if is_error == True
+        if is_error == True:
             return redirect('/newpost')
         else:
             db.session.add(new_blog)
@@ -167,80 +167,3 @@ def newpost():
 
 if __name__=='__main__':
     app.run()
-
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'Post':
-        username = request.form['username']
-        password = request.form['password']
-        verify = request.form['verify']
-
-    # --------Blank Fields--------
-
-    if len(username) == 0:
-        flash("The User Name field was left blank.", 'error')
-    else:
-        username = username
-    if len(password) == 0:
-        flash('The Password field was left bank.', 'error')
-    else: 
-        password = password
-    if len(verify) == 0:
-        flash('The verify password field was left blank', 'error')
-    else:
-        verify = verify
-
-    #---------Invalid User Name, Password, user name--------
-
-    if len(username) !=0:
-        if len(username) < 4 or len(username) > 50 or ' ' in username:
-            flash('User Name must be between 4 and 20 characters long and cannot contain spaces.', 'error')
-            return render_template('/signup.html')
-        else: 
-            username = username
-
-        if len(password) != 0:
-            if len(password) < 4 or len(password) > 150 or ' ' in password:
-                flash("Password must be between 4 and 19 characters long and cannot conatin spaces.", 'error')
-                return render_template('/signup.html')
-        else: 
-            password = password
-
-    #--------Password and Verify Do Not Match-----------
-
-    if len(password) == len(verify):
-        for char, letter in zip(password, verify):
-            if char !=letter:
-                flash('Password do not match', error)
-                return render_template('signup.html')
-        else:
-               verify = verify
-               password = password
-    else:
-            flash('Password Do Not Match.', 'error')
-            return render_template('signup.html')
-
-    if username and password and verify:
-            existing_user = User.query.filter_by(username=username).first()
-            if not existing_user:
-                new_user = User(username, password)
-                db.session.add(new_user)
-                db.session.commit()
-                session['username'] = username
-                return redirect('/new-post')
-            else:
-
-                flash('Duplicate User.', 'error')
-    else:
-            return render_template('signup.html')
-
-    return render_template('signup.html')
-
-@app.route('/logout')
-def logout():
-    del session['username']
-    return redirect('/blog')
-
-
-if __name__ == '__main__':
-    app.run()   
