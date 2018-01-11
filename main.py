@@ -57,12 +57,12 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        if user and user.password == password:
+        if user and check_pw_hash(password, user.pw_hash):
             session['username'] = username
             flash("Logged in")
             return redirect('/newpost')
         else:
-            flash('Your user name and/or password is incorrect', 'error')
+            flash('User password incorrect, or user does not exist', 'error')
             return render_template('login.html', username=username)
 
     return render_template('login.html', title='login',)
@@ -129,11 +129,11 @@ def blog():
     elif user_username:
         user = User.query.filter_by(username=user_username).first()
         user_blogs = Blog.query.filter_by(owner_id=user.id).all()
-        return render_template('singleuser.html', title="Userblogs", blogs=user_blogs)
+        return render_template('singleUser.html', title="Userblogs", blogs=user_blogs)
 
     else:
         post_blogs = Blog.query.order_by(Blog.date.desc()).all()
-        return render_template('singleuser.html', title="Blogz", blogs=post_blogs)
+        return render_template('singleUser.html', title="Blogz", blogs=post_blogs)
 
 @app.route('/newpost', methods=['GET', 'POST'])
 def newpost():
