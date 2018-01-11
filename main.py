@@ -31,7 +31,6 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
-    username = db.Column(db.String(150))
     pw_hash = db.Column(db.String(120))
     blogs = db.relationship('Blog', backref='user')
 
@@ -62,8 +61,8 @@ def login():
             session['username'] = username
             flash("Logged in")
             return redirect('/newpost')
-        elif user and user.password != password:
-            flash('Your password is incorrect', 'error')
+        else:
+            flash('Your user name and/or password is incorrect', 'error')
             return render_template('login.html', username=username)
 
     return render_template('login.html', title='login',)
@@ -111,7 +110,7 @@ def signup():
             db.session.commit()
             session['username'] = username
             return redirect('/newpost')
-        return render_template('signup.html', title="signup")
+    return render_template('signup.html', title="signup")
 
 @app.route('/logout')
 def logout():
@@ -148,7 +147,7 @@ def newpost():
         is_error = False
 
         if not new_title:
-            flash('You need to enter a title', 'erro')
+            flash('You need to enter a title', 'error')
             is_error = True
         elif not new_body:
             flash('You need to enter something in your post', 'error')
@@ -157,8 +156,6 @@ def newpost():
         if is_error == True:
             return redirect('/newpost')
 
-        if is_error == True:
-            return redirect('/newpost')
         else:
             db.session.add(new_blog)
             db.session.commit()
