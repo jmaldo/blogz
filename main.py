@@ -41,7 +41,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'blog', 'index' 'singnup']
+    allowed_routes = ['login', 'blog', 'index' 'signup']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
@@ -86,8 +86,8 @@ def signup():
             flash('Username already exists', 'error')
             is_error = True
 
-        elif len(username) < 3 or len(username) > 20 or ('' in username):
-            flash('Your user= name must be between 3 and 20 caracters in length and conatin no spaces', 'error')
+        elif len(username) < 3 or len(username) > 20 or (' ' in username):
+            flash('Your user name must be between 3 and 20 caracters in length and conatin no spaces', 'error')
             is_error = True
 
         if not password:
@@ -130,20 +130,20 @@ def blog():
     elif user_username:
         user = User.query.filter_by(username=user_username).first()
         user_blogs = Blog.query.filter_by(owner_id=user.id).all()
-        return render_template('singleUser.html', title="Userblogs", blogs=user_blogs)
+        return render_template('singleuser.html', title="Userblogs", blogs=user_blogs)
 
     else:
         post_blogs = Blog.query.order_by(Blog.date.desc()).all()
-        return render_template('singleUser.html', title="Blogz", blogs=post_blogs)
+        return render_template('singleuser.html', title="Blogz", blogs=post_blogs)
 
-@app.route('/newpost', methods=['GET', 'POST'])
+@app.route('/newpost', methods=['POST', 'GET'])
 def newpost():
-    owner = User.query.filter-by(username-session['username']).first()
+    owner = User.query.filter_by(username=session['username']).first()
 
     if request.method == 'POST':
         new_title = request.form['title']
         new_body = request.form['body']
-        new_blog = Blog(new_title,  new_body, owner_id)
+        new_blog = Blog(new_title,  new_body, owner.id)
 
         is_error = False
 
