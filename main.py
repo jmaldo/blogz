@@ -143,7 +143,7 @@ def newpost():
     if request.method == 'POST':
         new_title = request.form['title']
         new_body = request.form['body']
-        new_blog = Blog(new_title,  new_body, owner.id)
+        new_blog = Blog(new_title, new_body, owner.id)
 
         is_error = False
 
